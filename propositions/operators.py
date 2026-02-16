@@ -10,6 +10,7 @@ operators."""
 from propositions.syntax import *
 from propositions.semantics import *
 
+
 def to_not_and_or(formula: Formula) -> Formula:
     """Syntactically converts the given formula to an equivalent formula that
     contains no constants or operators beyond ``'~'``, ``'&'``, and ``'|'``.
@@ -22,7 +23,14 @@ def to_not_and_or(formula: Formula) -> Formula:
         contains no constants or operators beyond ``'~'``, ``'&'``, and
         ``'|'``.
     """
+
+    substitution_map = {'T': Formula.parse('(p|~p)'), 'F': Formula.parse('(p&~p)'),
+                        '->': Formula.parse('(~p|q)'), '+': Formula.parse('((~p&q)|(p&~q))'),
+                        '<->': Formula.parse('((p&q)|(~p&~q))'), '-&': Formula.parse('~(p&q)'),
+                        '-|': Formula.parse('~(p|q)')}
+    return formula.substitute_operators(substitution_map)
     # Task 3.5
+
 
 def to_not_and(formula: Formula) -> Formula:
     """Syntactically converts the given formula to an equivalent formula that
@@ -35,7 +43,9 @@ def to_not_and(formula: Formula) -> Formula:
         A formula that has the same truth table as the given formula, but
         contains no constants or operators beyond ``'~'`` and ``'&'``.
     """
+    return to_not_and_or(formula).substitute_operators({'|': Formula.parse('~(~p&~q)')})
     # Task 3.6a
+
 
 def to_nand(formula: Formula) -> Formula:
     """Syntactically converts the given formula to an equivalent formula that
@@ -48,7 +58,10 @@ def to_nand(formula: Formula) -> Formula:
         A formula that has the same truth table as the given formula, but
         contains no constants or operators beyond ``'-&'``.
     """
+    return to_not_and(formula).substitute_operators({'~': Formula.parse('(p-&p)'),
+                                                     '&': Formula.parse('((p-&q)-&(p-&q))')})
     # Task 3.6b
+
 
 def to_implies_not(formula: Formula) -> Formula:
     """Syntactically converts the given formula to an equivalent formula that
@@ -61,7 +74,9 @@ def to_implies_not(formula: Formula) -> Formula:
         A formula that has the same truth table as the given formula, but
         contains no constants or operators beyond ``'->'`` and ``'~'``.
     """
+    return to_not_and_or(formula).substitute_operators({'&': Formula.parse('~(p->~q)'), '|': Formula.parse('(~p->q)')})
     # Task 3.6c
+
 
 def to_implies_false(formula: Formula) -> Formula:
     """Syntactically converts the given formula to an equivalent formula that
@@ -74,4 +89,5 @@ def to_implies_false(formula: Formula) -> Formula:
         A formula that has the same truth table as the given formula, but
         contains no constants or operators beyond ``'->'`` and ``'F'``.
     """
+    return to_implies_not(formula).substitute_operators({'~': Formula.parse('(p->F)')})
     # Task 3.6d
